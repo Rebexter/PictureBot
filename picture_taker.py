@@ -1,7 +1,7 @@
 import os
 import time
 from datetime import datetime
-from picamera import PiCamera
+from picamera2 import Picamera2
 from telegram import Bot
 from PIL import Image
 import requests
@@ -16,7 +16,7 @@ PICTURE_INTERVAL = 600  # 10 minutes in seconds
 BASE_DIRECTORY = "/home/pi/timelapse"
 
 # Initialize camera
-camera = PiCamera()
+camera = Picamera2()
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
 # Function to ensure directory exists
