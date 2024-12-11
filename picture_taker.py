@@ -22,6 +22,7 @@ bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
 # Function to ensure directory exists
 def ensure_directory(directory):
+    print("DEBUG: " + str(directory))
     if not os.path.exists(directory):
         os.makedirs(directory)
 
