@@ -39,11 +39,14 @@ logger = logging.getLogger()
 
 
 class BotController:
-    def __init__(self, token):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
         self.subscribed_users = set()
-        self.token = token
+        #self.token = token
         self.message_manager = MessageManager()
         self.old_message, self.new_message = None, None
+        current_time = datetime.now()
+        self.current_folder = os.path.join(self.picture_path, current_time.strftime("%Y-%m-%d"))
 
     def load_subscribed_users(self):
         """Load the subscribed users from disk if the file exists."""
@@ -68,6 +71,51 @@ class BotController:
             print(f"Saved {len(self.subscribed_users)} subscribed users.")
         else:
             print("No changes detected, skipping save.")
+
+    # Function to ensure directory exists
+    def ensure_directory(self):
+        if not os.path.exists(self.current_folder):
+            os.makedirs(self.current_folder)
+
+    # Function to create a GIF
+    def create_gif(image_folder, gif_path):
+        images = []
+        for file_name in sorted(os.listdir(image_folder)):
+            if file_name.endswith(".jpg"):
+                image_path = os.path.join(image_folder, file_name)
+                images.append(Image.open(image_path))
+        if images:
+            images[0].save(gif_path, save_all=True, append_images=images[1:], duration=200, loop=0)
+
+    # Function to turn on the light via Home Assistant
+    def turn_on_light():
+        headers = {
+            "Authorization": f"Bearer {HOME_ASSISTANT_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "entity_id": LIGHT_ENTITY_ID
+        }
+        response = requests.post(f"{HOME_ASSISTANT_URL}/turn_on", headers=headers, json=data)
+        if response.status_code == 200:
+            print("Light turned on successfully.")
+        else:
+            print(f"Failed to turn on light: {response.status_code}, {response.text}")
+
+    # Function to turn off the light via Home Assistant
+    def turn_off_light():
+        headers = {
+            "Authorization": f"Bearer {HOME_ASSISTANT_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "entity_id": LIGHT_ENTITY_ID
+        }
+        response = requests.post(f"{HOME_ASSISTANT_URL}/turn_off", headers=headers, json=data)
+        if response.status_code == 200:
+            print("Light turned off successfully.")
+        else:
+            print(f"Failed to turn off light: {response.status_code}, {response.text}")
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.message.chat_id
@@ -106,6 +154,10 @@ class BotController:
 
     async def background_task(self, context):
         print("Background task is called")
+        current_time = datetime.now()
+        self.current_folder = os.path.join(self.picture_path, current_time.strftime("%Y-%m-%d"))
+        print(self.current_folder)
+        # old shit
         message_content = context.job.data
 
         try:
@@ -182,7 +234,7 @@ def load_config():
 def main():
     config = load_config()
     bot_token = config.get('token')
-    bot_controller = BotController(bot_token)
+    bot_controller = BotController(config)
     bot_controller.run()
 
 
