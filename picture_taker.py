@@ -13,7 +13,7 @@ HOME_ASSISTANT_URL = "http://<home-assistant-url>:8123/api/services/light"
 HOME_ASSISTANT_TOKEN = "<your-home-assistant-long-lived-access-token>"
 LIGHT_ENTITY_ID = "light.your_light_entity_id"
 PICTURE_INTERVAL = 600  # 10 minutes in seconds
-BASE_DIRECTORY = "/home/pi/timelapse"
+BASE_DIRECTORY = "/home/rbx/timelapse"
 
 # Initialize camera
 camera = Picamera2()
